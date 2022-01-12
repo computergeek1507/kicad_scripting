@@ -33,13 +33,8 @@ class CreateFPPJSON(pcbnew.ActionPlugin):
 
 		for module in board.GetModules():
 			ref = module.GetReference()
-
-			#if not ref.startswith( 'R' ) and not ref.startswith( 'J' ) and not ref.startswith( 'K' ) and not ref.startswith( 'D' ) and not ref.startswith( 'C' ):
-			#	continue
-
 			desp = module.GetDescription()
 			val = module.GetValue()
-
 
 			if val.lower().find("beagle") == -1:
 				continue
