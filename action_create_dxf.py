@@ -22,11 +22,11 @@ def WriteDXFFooter( f):
 	f.write("0\n")
 	f.write("EOF\n")
 
-def WriteDXFCircle( f, x, y, r):
+def WriteDXFCircle( f, x, y, r, l):
 	f.write("0\n")
 	f.write("CIRCLE\n")
 	f.write("8\n")
-	f.write("0\n")
+	f.write("{0:d}\n".format(l))
 	f.write("10\n")
 	f.write("{:.6f}\n".format(x))
 	f.write("20\n")
@@ -36,11 +36,11 @@ def WriteDXFCircle( f, x, y, r):
 	f.write("40\n")
 	f.write("{:.6f}\n".format(r))
 
-def WriteDXFLine( f, x1, y1, x2, y2):
+def WriteDXFLine( f, x1, y1, x2, y2, l):
 	f.write("0\n")
 	f.write("LINE\n")
 	f.write("8\n")
-	f.write("0\n")
+	f.write("{0:d}\n".format(l))
 	f.write("10\n")
 	f.write("{:.6f}\n".format(x1))
 	f.write("20\n")
@@ -54,11 +54,11 @@ def WriteDXFLine( f, x1, y1, x2, y2):
 	f.write("31\n")
 	f.write("0\n")
 
-def DrawDXFBox( f, x1, y1, x2, y2):
-	WriteDXFLine(f,x1,y1,x2,y1)
-	WriteDXFLine(f,x1,y1,x1,y2)
-	WriteDXFLine(f,x2,y1,x2,y2)
-	WriteDXFLine(f,x1,y2,x2,y2)
+def DrawDXFBox( f, x1, y1, x2, y2, l):
+	WriteDXFLine(f,x1,y1,x2,y1,l)
+	WriteDXFLine(f,x1,y1,x1,y2,l)
+	WriteDXFLine(f,x2,y1,x2,y2,l)
+	WriteDXFLine(f,x1,y2,x2,y2,l)
 
 class CreateDXF(pcbnew.ActionPlugin):
 
@@ -85,7 +85,7 @@ class CreateDXF(pcbnew.ActionPlugin):
 		df = open(newDxfFile, "w")
 		WriteDXFHeader(df)
 
-		DrawDXFBox(df,0,0,width,height)
+		DrawDXFBox(df,0,0,width,height,0)
 
 		for module in board.GetFootprints():
 			ref = module.GetReference()
@@ -94,7 +94,7 @@ class CreateDXF(pcbnew.ActionPlugin):
 			#	continue
 
 			for gi in module.GraphicalItems():
-				if not gi.GetLayerName().endswith ("SilkS"): #only draw slikscreen graphics 
+				if not gi.GetLayerName().endswith ("Silkscreen"): #only draw slikscreen graphics 
 					continue
 				gi_bbox = gi.GetBoundingBox()
 				gi_width = pcbnew.ToMils(gi_bbox.GetSize().x)
@@ -102,7 +102,7 @@ class CreateDXF(pcbnew.ActionPlugin):
 
 				gi_x = pcbnew.ToMils(gi_bbox.GetPosition().x - min_x)
 				gi_y = pcbnew.ToMils(gi_bbox.GetPosition().y - min_y)
-				DrawDXFBox(df, gi_x, gi_y, gi_x + gi_width, gi_y + gi_height)
+				DrawDXFBox(df, gi_x, gi_y, gi_x + gi_width, gi_y + gi_height,1)
 
 
 			if not ref.startswith( 'H' ) : #skip non holes
@@ -113,7 +113,7 @@ class CreateDXF(pcbnew.ActionPlugin):
 				pos_x = pcbnew.ToMils(pos.x - min_x)
 				pos_y = pcbnew.ToMils(pos.y - min_y)
 				pad_size = pcbnew.ToMils(pad.GetSize().y/2) #diameter to radians
-				WriteDXFCircle(df, pos_x, pos_y, pad_size)
+				WriteDXFCircle(df, pos_x, pos_y, pad_size,0)
 
 		WriteDXFFooter(df)
 		df.close()
