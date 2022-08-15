@@ -89,6 +89,7 @@ class CreateDXF(pcbnew.ActionPlugin):
 
 		for module in board.GetFootprints():
 			ref = module.GetReference()
+			val = module.GetValue()
 
 			#if not ref.startswith( 'R' ) and not ref.startswith( 'J' ) and not ref.startswith( 'K' ) and not ref.startswith( 'D' ) and not ref.startswith( 'C' ):
 			#	continue
@@ -105,7 +106,7 @@ class CreateDXF(pcbnew.ActionPlugin):
 				DrawDXFBox(df, gi_x, gi_y, gi_x + gi_width, gi_y + gi_height,1)
 
 
-			if not ref.startswith( 'H' ) : #skip non holes
+			if not ref.startswith( 'H' ) and not val.startswith( 'MountingHole' ): #skip non holes
 				continue
 
 			for pad in module.Pads():
