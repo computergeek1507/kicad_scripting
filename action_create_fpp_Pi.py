@@ -14,7 +14,7 @@ else:
 class CreateFPPJSON(pcbnew.ActionPlugin):
 
 	def defaults(self):
-		self.name = "Create FPP JSON Pins"
+		self.name = "Create FPP JSON Pins Pi"
 		self.category = "FPP Plugin"
 		self.description = "Create JSON Pins define file for FPP"
 
@@ -39,22 +39,19 @@ class CreateFPPJSON(pcbnew.ActionPlugin):
 			desp = module.GetDescription()
 			val = module.GetValue()
 
-			if val.lower().find("beagle") == -1:
+			if val.lower().find("raspberry_pi") == -1:
 				continue
 			for pad in module.Pads():
 				m = re.search(reg, pad.GetNet().GetNetname())
 				if m:
 					iPin = int(m.group(2))
-					netName = pad.GetName()
+					netName = pad.GetNumber()
 					log.write( str(iPin))
 					log.write("\t")
 					log.write(netName)
 					log.write("\t")
-					netName = netName.replace("_", "-")#pocketbeagle library netnames are close
-					netName = netName.replace("B", "P8-")#bbb library netnames are not right
-					netName = netName.replace("C", "P9-")#bbb library netnames are not right
-					if len(netName) == 4:
-						netName = netName.replace("-", "-0")
+					netName = "P1-" + netName#pocketbeagle library netnames are close
+
 					pinValues[iPin-1] = netName
 					log.write(netName)
 					log.write("\n")
@@ -67,6 +64,7 @@ class CreateFPPJSON(pcbnew.ActionPlugin):
 		f.write("    \"longName\": \"")
 		f.write(description)
 		f.write("\",\n")
+		f.write("    \"driver\": \"DPIPixels\",\n")
 		f.write("    \"numSerial\": 0,\n")
 		f.write("    \"outputs\": [\n")
 		for pin in range(len(pinValues)):
