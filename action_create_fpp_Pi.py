@@ -39,7 +39,7 @@ class CreateFPPJSON(pcbnew.ActionPlugin):
 			desp = module.GetDescription()
 			val = module.GetValue()
 
-			if val.lower().find("raspberry_pi") == -1:
+			if val.lower().find("raspberry") == -1:
 				continue
 			for pad in module.Pads():
 				m = re.search(reg, pad.GetNet().GetNetname())
